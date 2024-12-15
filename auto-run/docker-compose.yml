@@ -1,0 +1,59 @@
+services:
+  postgres-bobscorn:
+    container_name: "postgres-bobscorn"
+    image: postgres:17
+    restart: always
+    ports:
+      - "${POSTGRES_DB_PORT}:5432"
+    environment:
+      - DATABASE_HOST=${POSTGRES_DB_HOST}
+      - POSTGRES_USER=${POSTGRES_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB_NAME}
+    volumes:
+      - ./postgres_data:/var/lib/postgres-bobscorn/data
+
+  bobscorn-api:
+    container_name: "bobscorn-api"
+    restart: always
+    build:
+      context: ../bobscorn-api
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_DB_HOST=${POSTGRES_DB_HOST}
+      - POSTGRES_DB_USER=${POSTGRES_DB_USER}
+      - POSTGRES_DB_PASSWORD=${POSTGRES_DB_PASSWORD}
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - DATABASE_URL=postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@${POSTGRES_DB_HOST_EXTERN}:5432/${POSTGRES_DB_NAME}?charset=utf8
+      - BOBSCORN_API_PORT=${BOBSCORN_API_PORT}
+    ports:
+      - "${BOBSCORN_API_PORT}:${BOBSCORN_API_PORT}"
+    depends_on:
+      - postgres-bobscorn
+    volumes:
+      - ../bobscorn-api:/app
+    command: npm run dev
+
+  bobscorn-frontend:
+    build: 
+      context: ../bobscorn-frontend
+      dockerfile: Dockerfile
+    container_name: bobscorn-frontend
+    depends_on:
+      - bobscorn-api
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - WDS_SOCKET_HOST=127.0.0.1 
+      - VITE_APP_BOBSCORN_API_URL=http://localhost:${BOBSCORN_API_PORT}/api/v1
+      - VITE_APP_PORT_URL=${FRONTEND_PORT}
+      - NODE_ENV=dev
+    volumes:
+      - /app/node_modules
+      - ../bobscorn-frontend:/app
+    command: npm run dev 
+
+volumes:
+  postgres_data:

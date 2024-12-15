@@ -1,0 +1,6 @@
+# ignora los node_modules
+node_modules
+
+.vercel
+
+.env
