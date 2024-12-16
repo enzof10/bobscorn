@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CustomerCard({
 	name,
@@ -9,6 +10,7 @@ export default function CustomerCard({
 	onEdit,
 	onBuyCorn,
 	purchaseCooldown,
+	loading,
 }) {
 	const [progress, setProgress] = useState(100);
 
@@ -31,32 +33,45 @@ export default function CustomerCard({
 	}, [data?.purchase_time, purchaseCooldown]);
 
 	return (
-		<Card className="max-w-lg mx-auto shadow-lg">
-			<CardHeader>
-				<CardTitle className="text-center">
-					Customer: {name || "N/A"}
-					<Button className="ml-4" onClick={onEdit} variant="outline">
-						<Pencil size={18} />
-					</Button>
-				</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p className="text-lg font-medium mb-4">
-					Total Purchases: {data?.quantity || 0}
-				</p>
-				<div className="flex justify-center relative">
-					<Button
-						onClick={onBuyCorn}
-						className="relative text-white font-bold"
-						style={{
-							background: `linear-gradient(to right, #fbbf24 ${progress}%, #d1d5db ${progress}%)`,
-							transition: "background 0.5s ease-in-out",
-						}}
-					>
-						Buy Corn 🌽
-					</Button>
+		<>
+			{loading ? (
+				<div className="flex justify-center">
+					{/* Skeleton loader */}
+					<Skeleton className="h-48 w-full max-w-md rounded-lg" />
 				</div>
-			</CardContent>
-		</Card>
+			) : (
+				<Card className="max-w-lg mx-auto shadow-lg">
+					<CardHeader>
+						<CardTitle className="text-center">
+							Customer: {name || "N/A"}
+							<Button
+								className="ml-4"
+								onClick={onEdit}
+								variant="outline"
+							>
+								<Pencil size={18} />
+							</Button>
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-lg font-medium mb-4">
+							Total Purchases: {data?.quantity || 0}
+						</p>
+						<div className="flex justify-center relative">
+							<Button
+								onClick={onBuyCorn}
+								className="relative text-white font-bold"
+								style={{
+									background: `linear-gradient(to right, #fbbf24 ${progress}%, #d1d5db ${progress}%)`,
+									transition: "background 0.5s ease-in-out",
+								}}
+							>
+								Buy Corn 🌽
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			)}
+		</>
 	);
 }

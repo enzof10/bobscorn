@@ -12,45 +12,55 @@ function App() {
 	const [data, setData] = useState(null); // Centralized data
 	const [salePolicy, setSalePolicy] = useState(null); // Sale policy state
 	const { toast } = useToast();
+	const [loadingCustomerData, setLoadingCustomerData] = useState(true);
 
 	// Fetch Sale Policies
 	const fetchSalePolicies = async () => {
 		const url = `${
 			import.meta.env.VITE_APP_BOBSCORN_API_URL
 		}/farm/sale-policies`;
-		const response = await fetch(url);
 
-		if (response.ok) {
-			const result = await response.json();
-			const { limitRateQuantity, limitRateInterval } = result.data;
+		try {
+			const response = await fetch(url);
+			if (response.ok) {
+				const result = await response.json();
+				const { limitRateQuantity, limitRateInterval } = result.data;
+				const intervalInMinutes = Math.ceil(limitRateInterval / 60000);
 
-			const intervalInMinutes = Math.ceil(limitRateInterval / 60000);
-
-			setSalePolicy({
-				limitRateQuantity,
-				intervalInMinutes,
-			});
+				setSalePolicy({
+					limitRateQuantity,
+					intervalInMinutes,
+				});
+			}
+		} finally {
+			setLoadingCustomerData(false);
 		}
 	};
 
 	// Fetch Corn Purchases
 	const fetchData = async (currentName) => {
+		setLoadingCustomerData(true);
 		if (!currentName) return;
+
 		const url = `${
 			import.meta.env.VITE_APP_BOBSCORN_API_URL
 		}/farm/corn/purchases/${encodeURIComponent(currentName)}`;
 
-		const response = await fetch(url);
-		if (response.ok) {
-			const newData = await response.json();
-			setData(newData.data);
-		} else {
-			toast({
-				title: `${randomEmoji()} Oops!`,
-				description:
-					"We couldn't retrieve your information. Please try again.",
-				variant: "destructive",
-			});
+		try {
+			const response = await fetch(url);
+			if (response.ok) {
+				const newData = await response.json();
+				setData(newData.data);
+			} else {
+				toast({
+					title: `${randomEmoji()} Oops!`,
+					description:
+						"We couldn't retrieve your information. Please try again.",
+					variant: "destructive",
+				});
+			}
+		} finally {
+			setLoadingCustomerData(false);
 		}
 	};
 
@@ -71,8 +81,8 @@ function App() {
 			});
 		} else {
 			toast({
-				title: `${randomEmoji()} Política de venta`,
-				description: `Nuestra política solo nos permite vender ${salePolicy.limitRateQuantity} cantidad por ${salePolicy.intervalInMinutes} minuto(s).`,
+				title: `${randomEmoji()} Sale Policy`,
+				description: `Our policy only allows us to sell ${salePolicy.limitRateQuantity} item(s) every ${salePolicy.intervalInMinutes} minute(s).`,
 				variant: "destructive",
 			});
 		}
@@ -119,6 +129,7 @@ function App() {
 					onEdit={() => setDialog({ open: true, tempName: name })}
 					onBuyCorn={buyCorn}
 					purchaseCooldown={salePolicy?.intervalInMinutes}
+					loading={loadingCustomerData}
 				/>
 				<NameDialog
 					open={dialog.open}
