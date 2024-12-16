@@ -32,7 +32,10 @@ services:
       - postgres-bobscorn
     volumes:
       - ../bobscorn-api:/app
-    command: npm run dev
+
+    command: >
+      sh -c "if [ -z \"$(npx prisma migrate status --schema=schema.prisma --preview-feature | grep 'Database schema is up to date')\" ]; then
+      npx prisma migrate dev; fi && npm run dev"
 
   bobscorn-frontend:
     build: 

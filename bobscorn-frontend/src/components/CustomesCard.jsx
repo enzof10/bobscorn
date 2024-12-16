@@ -15,6 +15,8 @@ export default function CustomerCard({
 	const [progress, setProgress] = useState(100);
 
 	useEffect(() => {
+        if(loading) return
+
 		const interval = setInterval(() => {
 			if (data?.purchase_time && purchaseCooldown) {
 				const lastPurchaseTime = new Date(data.purchase_time).getTime();
@@ -26,7 +28,9 @@ export default function CustomerCard({
 					100
 				);
 				setProgress(newProgress);
-			}
+			}else{
+				setProgress(100);
+            }
 		}, 1000);
 
 		return () => clearInterval(interval);
