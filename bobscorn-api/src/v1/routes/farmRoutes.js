@@ -30,7 +30,7 @@ import FarmController from "../../controllers/farmController.js";
  *       500:
  *         description: Internal server error
  */
-farmRoute.post("/farm/buy-corn", FarmController.buyCorn);
+farmRoute.post("/farm/corn/buy", FarmController.buyCorn);
 
 /**
  * @swagger
