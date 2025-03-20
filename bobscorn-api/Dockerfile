@@ -1,16 +1,24 @@
+# Usa la imagen oficial de Node.js
 FROM node:22
 
-# Create app directory
+# Configurar variables de entorno
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Copy package.json
+# Copiar solo package.json y package-lock.json para aprovechar la caché de Docker
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Instalar solo dependencias de producción
+RUN npm ci --omit=dev
 
-# Copy all files
+# Copiar el resto de los archivos
 COPY . .
 
-CMD [ "npm" , "run" , "migrate-db"]
+# Exponer el puerto 8080 para Google Cloud Run
+EXPOSE 8080
 
+# Comando de inicio
+CMD ["npm", "run", "dev"]
