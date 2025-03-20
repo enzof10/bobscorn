@@ -1,0 +1,37 @@
+name: Deploy bobs api to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Autenticación con Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Build y push de imagen Docker
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app
+
+      - name: Deploy en Cloud Run
+        run: |
+          gcloud run deploy nest-app \
+            --image=us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app \
+            --platform=managed \
+            --region=us-central1 \
+            --allow-unauthenticated
