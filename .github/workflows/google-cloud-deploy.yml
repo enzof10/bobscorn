@@ -27,7 +27,7 @@ jobs:
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
           docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api:latest ./bobscorn-api
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api:latest
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api
 
       - name: Deploy en Cloud Run
         run: |
