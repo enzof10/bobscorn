@@ -1,6 +1,6 @@
 import app from './app.js'
 import PrismaManager from './src/utils/prismaManager.js';
-const PORT = process.env.BOBSCORN_API_PORT;
+const PORT = process.env.PORT;
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
