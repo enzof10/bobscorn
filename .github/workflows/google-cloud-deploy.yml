@@ -25,13 +25,13 @@ jobs:
       - name: Build y push de imagen Docker
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app .
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app
+          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api:latest .
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api:latest
 
       - name: Deploy en Cloud Run
         run: |
-          gcloud run deploy nest-app \
-            --image=us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mi-repo/nest-app \
+          gcloud run deploy bobscorn-api \
+            --image=us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/bobs/bobs-api:latest \
             --platform=managed \
             --region=us-central1 \
             --allow-unauthenticated
